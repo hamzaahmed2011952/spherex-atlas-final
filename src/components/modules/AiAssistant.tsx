@@ -165,7 +165,15 @@ How can I assist your astrophysical investigation today?`,
         }),
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        throw new Error(
+          `Assistant API returned HTTP ${res.status}: ${responseText.slice(0, 240) || res.statusText}. ` +
+            'Confirm the latest deployment includes the Vercel API function.'
+        );
+      }
+      const data = JSON.parse(responseText);
 
       let replyText = '';
       let isError = false;
